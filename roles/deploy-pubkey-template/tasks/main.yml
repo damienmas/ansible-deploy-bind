@@ -1,0 +1,10 @@
+---
+# Deploy ssh public key from your jump box to the newly deployed VMs
+#- name: Wait for system to become reachable over SSH
+#  wait_for_connection:
+#    timeout: 60
+- name: Set authorized key took from file
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', '/root/.ssh/id_dsa.pub') }}"

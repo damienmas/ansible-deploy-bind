@@ -1,0 +1,9 @@
+---
+- hosts: bind
+  gather_facts: false
+  vars_files:
+    - answerfile.yml
+  roles:
+    - deploy-pubkey-template
+#    - deploy-prerequisites-template
+    - deploy-bind9-template

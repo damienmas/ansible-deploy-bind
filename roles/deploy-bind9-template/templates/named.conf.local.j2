@@ -1,0 +1,6 @@
+zone "{{ dns_zone_name }}" IN {
+        type master;
+        file "{{ dns_zone_name }}.zone";
+        allow-update { key {{ key_name }}; };
+};
+

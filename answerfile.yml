@@ -1,0 +1,8 @@
+# the DNS zone name where nautilus will be installed
+# it can be anything you want
+# guest_dns_server1 will be responsible for managing this zone and update it using rfc2136
+dns_zone_name: 'my-lab.com'
+
+# DNS forwarder IPs
+forwarder1_ip: '1.2.3.4'
+forwarder2_ip: '5.6.7.8'

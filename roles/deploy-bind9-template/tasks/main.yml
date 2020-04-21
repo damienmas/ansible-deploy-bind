@@ -1,0 +1,103 @@
+---
+# Deploy and configure bind9
+- name: Install bind and bind-utils
+  yum:
+    name: '{{ packages }}'
+  vars:
+    packages:
+    - bind
+    - bind-utils
+
+- name: generate dnskey with dnssec
+  command: dnssec-keygen -a HMAC-SHA256 -b 256 -n HOST dnskey-{{ dns_zone_name }}
+  register: key_file
+- set_fact:
+    key_file={{ key_file.stdout }}
+
+- name: Retrieve key name
+  shell: 
+    cmd: cat ${HOME}/{{ key_file }}.key | awk '{print $1}'
+  register: key_name
+- set_fact:
+    key_name={{ key_name.stdout }}
+
+- name: Retrieve key value
+  shell: 
+    cmd: cat ${HOME}/{{ key_file }}.key | awk '{print $NF}'
+  register: key_value
+- set_fact:
+    key_value={{ key_value.stdout }}
+
+- debug: var=key_file
+- debug: var=key_name
+- debug: var=key_value
+
+#- name: delete dnskey file
+#  command: rm -rf ${HOME}/{{ key_file }}.*
+
+- name: Copy dns.keys.conf
+  template:
+    src: dns.keys.conf.j2
+    dest: /etc/dns.keys.conf
+    owner: root
+    group: named
+    mode: 0660
+#  notify: restart named
+
+- name: Copy named conf file
+  template:
+    src: named.conf.j2
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: 0660
+#  notify: restart named
+
+- name: Make named directory
+  file:
+    path: /etc/named
+    state: directory
+    owner: root
+    group: named
+    mode: 0750
+
+- name: Copy named conf local file
+  template:
+    src: named.conf.local.j2
+    dest: /etc/named/named.conf.local
+    owner: root
+    group: named
+    mode: 0640
+#  notify: restart named
+
+- name: Make named zones Directory
+  file:
+    path: /var/named/
+    state: directory
+    owner: root
+    group: named
+    mode: 0770
+
+- name: Copy forward file
+  template:
+    src: db.forward.j2
+    dest: /var/named/{{ dns_zone_name }}.zone
+    owner: root
+    group: named
+    mode: 0640
+#  notify: restart named
+
+#- name: Copy reverse file
+#  template:
+#    src: db.reverse.j2
+#    dest: /etc/named/zones/db.{{ rev_zone_name }}
+#    owner: root
+#    group: named
+#    mode: 0640
+#  notify: restart named
+
+- name: enable and start bind9
+  systemd:
+    state: started
+    enabled: yes
+    name: named

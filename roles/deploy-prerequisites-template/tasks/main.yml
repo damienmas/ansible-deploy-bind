@@ -1,0 +1,18 @@
+---
+# Prepare the VM
+- name: stop firewalld
+  systemd:
+    state: stopped
+    enabled: no
+    name: firewalld
+- name: Disable IPv6 with sysctl
+  sysctl: name={{ item }} value=1 state=present
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    - net.ipv6.conf.lo.disable_ipv6
+- name: Update initramfs with dracut
+  shell:
+    cmd: dracut -v -f
+- name: Reboot the machine
+  reboot:
