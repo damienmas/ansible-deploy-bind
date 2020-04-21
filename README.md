@@ -35,7 +35,7 @@ The required files are:
 ```
 
 1. Edit the ```vms-to-deploy``` file to define where to install bind9.
-2. Edit the ```answerfile.yml``` file to define the dns zone you want create.
+2. Edit the ```answerfile.yml``` file to define the dns zone you want create and the DNS forwarders.
 
 ## Execution
 
